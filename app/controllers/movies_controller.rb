@@ -11,7 +11,10 @@ class MoviesController < ApplicationController
   end
 
   def index
+    option = params[:sorted_by]
+    order_by = ['title', 'release_date']
     @movies = Movie.all
+    @movies = @movies.order(option + " ASC") if order_by.include?(option)
   end
 
   def new
@@ -30,6 +33,9 @@ class MoviesController < ApplicationController
 
   def update
     @movie = Movie.find params[:id]
+    # puts "+"*8
+    # puts movie_params
+    # puts "+"*8
     @movie.update_attributes!(movie_params)
     flash[:notice] = "#{@movie.title} was successfully updated."
     redirect_to movie_path(@movie)
