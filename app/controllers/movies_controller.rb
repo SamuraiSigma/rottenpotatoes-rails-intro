@@ -14,6 +14,16 @@ class MoviesController < ApplicationController
 
   def index
     @movies = Movie.all
+    restore_session = {}
+
+    # Restore session? just a test
+    if params[:sorted_by].nil? && !session[:sorted_by].nil?
+      restore_session[:sorted_by] = session[:sorted_by]
+    end
+
+    unless restore_session.empty?
+      redirect_to movies_path(restore_session)
+    end
 
     # Get chosen ratings and convert to array
     @ratings_hash = params[:ratings]
