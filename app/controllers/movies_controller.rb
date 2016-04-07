@@ -1,6 +1,6 @@
 class MoviesController < ApplicationController
 
-  attr_accessor :ratings
+  attr_accessor :checked_ratings
 
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
@@ -15,16 +15,17 @@ class MoviesController < ApplicationController
   def index
     @movies = Movie.all
 
-    filter_rating = params[:ratings]
+    # Get chosen ratings and convert to array
+    ratings_hash = params[:ratings]
+    @checked_ratings = (ratings_hash.nil? ? [] : ratings_hash.keys)
 
-    unless filter_rating.nil?
-      @movies = @movies.where(:rating => filter_rating.keys)
-    end
+    # Filter movies by ratings
+    @movies = @movies.where(:rating => @checked_ratings)
 
-    option = params[:sorted_by]
+    # Sort, if necessary
     order_by = ['title', 'release_date']
+    option = params[:sorted_by]
     @all_ratings = Movie.all_ratings
-    
     @movies = @movies.order(option + " ASC") if order_by.include?(option)
   end
 
