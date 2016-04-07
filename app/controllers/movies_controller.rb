@@ -16,17 +16,21 @@ class MoviesController < ApplicationController
     @movies = Movie.all
 
     # Get chosen ratings and convert to array
-    ratings_hash = params[:ratings]
-    @checked_ratings = (ratings_hash.nil? ? [] : ratings_hash.keys)
+    @ratings_hash = params[:ratings]
+    @checked_ratings = (@ratings_hash.nil? ? [] : @ratings_hash.keys)
 
     # Filter movies by ratings
-    @movies = @movies.where(:rating => @checked_ratings)
+    @movies = @movies.where(:rating => @checked_ratings) unless @ratings_hash.nil?
 
     # Sort, if necessary
     order_by = ['title', 'release_date']
     option = params[:sorted_by]
     @all_ratings = Movie.all_ratings
     @movies = @movies.order(option + " ASC") if order_by.include?(option)
+    
+    # Session
+    session[:ratings] = @checked_ratings
+    session[:sorted_by] = option
   end
 
   def new
