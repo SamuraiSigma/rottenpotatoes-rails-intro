@@ -14,15 +14,25 @@ class MoviesController < ApplicationController
 
   def index
     @movies = Movie.all
-    restore_session = {}
+    @all_ratings = Movie.all_ratings
 
-    # Restore session? just a test
+    # If necessary, create hash for redirecting
+    restore_session = {}
+    
     if params[:sorted_by].nil? && !session[:sorted_by].nil?
-      params[:sorted_by] = session[:sorted_by]
+      restore_session[:sorted_by] = session[:sorted_by]
+    end
+    if params[:ratings].nil? && !session[:ratings].nil?
+      restore_session[:ratings] = session[:ratings]
     end
 
-    if params[:ratings].nil? && !session[:ratings].nil?
-      params[:ratings] = session[:ratings]
+    # Redirect if a params[] key is missing
+    unless restore_session.empty?
+      # If there are any current params set, use them in redirect
+      restore_session[:sorted_by] = params[:sorted_by] unless params[:sorted_by].nil?
+      restore_session[:ratings] = params[:ratings] unless params[:ratings].nil?
+      flash.keep  # Saves message in flash[] to display it after redirect
+      redirect_to movies_path(restore_session)
     end
 
     # Get chosen ratings and convert to array
@@ -35,10 +45,9 @@ class MoviesController < ApplicationController
     # Sort, if necessary
     order_by = ['title', 'release_date']
     option = params[:sorted_by]
-    @all_ratings = Movie.all_ratings
     @movies = @movies.order(option + " ASC") if order_by.include?(option)
 
-    # Session
+    # Save current options in session
     session[:ratings] = @ratings_hash
     session[:sorted_by] = option
   end
