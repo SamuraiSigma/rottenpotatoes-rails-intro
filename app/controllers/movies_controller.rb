@@ -18,11 +18,11 @@ class MoviesController < ApplicationController
 
     # Restore session? just a test
     if params[:sorted_by].nil? && !session[:sorted_by].nil?
-      restore_session[:sorted_by] = session[:sorted_by]
+      params[:sorted_by] = session[:sorted_by]
     end
 
-    unless restore_session.empty?
-      redirect_to movies_path(restore_session)
+    if params[:ratings].nil? && !session[:ratings].nil?
+      params[:ratings] = session[:ratings]
     end
 
     # Get chosen ratings and convert to array
@@ -30,16 +30,16 @@ class MoviesController < ApplicationController
     @checked_ratings = (@ratings_hash.nil? ? [] : @ratings_hash.keys)
 
     # Filter movies by ratings
-    @movies = @movies.where(:rating => @checked_ratings) unless @ratings_hash.nil?
+    @movies = @movies.where(:rating => @checked_ratings)
 
     # Sort, if necessary
     order_by = ['title', 'release_date']
     option = params[:sorted_by]
     @all_ratings = Movie.all_ratings
     @movies = @movies.order(option + " ASC") if order_by.include?(option)
-    
+
     # Session
-    session[:ratings] = @checked_ratings
+    session[:ratings] = @ratings_hash
     session[:sorted_by] = option
   end
 
