@@ -37,7 +37,7 @@ class MoviesController < ApplicationController
 
     # Get chosen ratings and convert to array
     @ratings_hash = params[:ratings]
-    @checked_ratings = (@ratings_hash.nil? ? [] : @ratings_hash.keys)
+    @checked_ratings = (@ratings_hash.nil? ? @all_ratings : @ratings_hash.keys)
 
     # Filter movies by ratings
     @movies = @movies.where(:rating => @checked_ratings)
